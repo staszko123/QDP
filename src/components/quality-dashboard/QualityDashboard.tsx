@@ -25,6 +25,7 @@ import {
   type QualityTrendPoint,
   type StatusDatum,
 } from "./mockQualityDashboard";
+import { AIInsightsPanel } from "./AIInsightsPanel";
 import { Card, EmptyState, Select, SectionHeader, StatCard, StatusPill } from "../ui";
 
 const statusTone: Record<QualityStatus, "success" | "warning" | "danger" | "neutral"> = {
@@ -115,6 +116,8 @@ export function QualityDashboard() {
           />
         </div>
       </Card>
+
+      <AIInsightsPanel />
 
       {isEmpty ? (
         <EmptyState
