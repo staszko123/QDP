@@ -114,7 +114,8 @@ const initialFormState: EvaluationFormState = {
   conversationId: "CONV-2026-1048",
   caseId: "CASE-88421",
   templateId: "support-quality",
-  finalComment: "",
+  finalComment:
+    "Specjalistka utrzymała dobry standard rozmowy, jasno wyjaśniła kolejne kroki i domknęła sprawę bez eskalacji.",
 };
 
 const initialScores = Object.fromEntries(
@@ -124,7 +125,14 @@ const initialScores = Object.fromEntries(
 );
 
 const initialComments = Object.fromEntries(
-  sections.flatMap((section) => section.criteria.map((criterion) => [criterion.id, ""]))
+  sections.flatMap((section) =>
+    section.criteria.map((criterion) => [
+      criterion.id,
+      criterion.requiredComment
+        ? "Odpowiedź była zgodna z procedurą i zawierała wymagane informacje dla klienta."
+        : "",
+    ])
+  )
 );
 
 export function EvaluationForm() {

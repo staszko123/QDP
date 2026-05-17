@@ -13,7 +13,7 @@ const appRouteTargets: Record<string, string> = {
   "/app/specialists": "administration",
   "/app/integrations": "integrations",
   "/app/administration": "administration",
-  "/app/settings": "administration",
+  "/app/settings": "settings",
   "/app/billing": "billing",
   "/app/sandbox": "sandbox",
 };
@@ -41,7 +41,7 @@ function App() {
   }, [route]);
 
   if (route.startsWith("#/app")) {
-    return <ProductApp />;
+    return <ProductApp routePath={route.slice(1)} />;
   }
 
   return <LandingPage />;

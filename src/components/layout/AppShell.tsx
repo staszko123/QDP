@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import {
   Bell,
   Boxes,
@@ -35,7 +35,7 @@ interface AppShellProps {
 }
 
 const navigation = [
-  { label: "Dashboard", href: "#/app/dashboard", icon: Gauge, active: true },
+  { label: "Dashboard", href: "#/app/dashboard", icon: Gauge },
   { label: "Oceny", href: "#/app/evaluations", icon: ClipboardCheck },
   { label: "Kreator ocen", href: "#/app/builder", icon: Sparkles },
   { label: "Szablony", href: "#/app/templates", icon: LayoutTemplate },
@@ -56,6 +56,29 @@ export function AppShell({
   organizations,
   user,
 }: AppShellProps) {
+  const currentHash = window.location.hash || "#/app/dashboard";
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState(activeOrganization?.id ?? organizations[0]?.id ?? "");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const selectedOrganization =
+    organizations.find((organization) => organization.id === selectedOrganizationId) ?? activeOrganization;
+
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const normalized = searchValue.trim().toLowerCase();
+    if (normalized.includes("raport")) {
+      window.location.hash = "#/app/reports";
+      return;
+    }
+    if (normalized.includes("ocen")) {
+      window.location.hash = "#/app/evaluations";
+      return;
+    }
+    if (normalized.includes("integr")) {
+      window.location.hash = "#/app/integrations";
+    }
+  }
+
   return (
     <div className="app-shell">
       <aside className="app-sidebar">
@@ -70,10 +93,13 @@ export function AppShell({
         <nav aria-label="Primary navigation" className="app-nav">
           {navigation.map((item) => {
             const Icon = item.icon;
+            const isActive =
+              currentHash === item.href ||
+              (currentHash === "#/app" && item.href === "#/app/dashboard");
 
             return (
               <a
-                aria-current={item.active ? "page" : undefined}
+                aria-current={isActive ? "page" : undefined}
                 className="app-nav__link"
                 href={item.href}
                 key={item.label}
@@ -93,17 +119,25 @@ export function AppShell({
               <Menu aria-hidden="true" size={20} />
             </Button>
 
-            <label className="topbar-search">
+            <form className="topbar-search" onSubmit={submitSearch}>
               <Search aria-hidden="true" size={18} />
-              <input placeholder="Search evaluations, reports, specialists" type="search" />
-            </label>
+              <input
+                onChange={(event) => setSearchValue(event.target.value)}
+                placeholder="Szukaj: oceny, raporty, integracje"
+                type="search"
+                value={searchValue}
+              />
+            </form>
           </div>
 
           <div className="topbar__right">
             <label className="organization-switcher">
               <Building2 aria-hidden="true" size={18} />
-              <span>Organization</span>
-              <select defaultValue={activeOrganization?.id}>
+              <span>Organizacja</span>
+              <select
+                onChange={(event) => setSelectedOrganizationId(event.target.value)}
+                value={selectedOrganizationId}
+              >
                 {organizations.map((organization) => (
                   <option key={organization.id} value={organization.id}>
                     {organization.name}
@@ -112,7 +146,13 @@ export function AppShell({
               </select>
             </label>
 
-            <Button aria-label="Notifications" className="icon-button" variant="secondary">
+            <Button
+              aria-label="Notifications"
+              aria-pressed={showNotifications}
+              className="icon-button"
+              onClick={() => setShowNotifications((current) => !current)}
+              variant="secondary"
+            >
               <Bell aria-hidden="true" size={18} />
               <span className="notification-dot" />
             </Button>
@@ -139,9 +179,17 @@ export function AppShell({
           </div>
 
           <div className="active-organization-strip">
-            <span>{activeOrganization?.name ?? "No organization selected"}</span>
-            <Badge tone="blue">Live workspace</Badge>
+            <span>{selectedOrganization?.name ?? "Brak wybranej organizacji"}</span>
+            <Badge tone="blue">Aktywny workspace</Badge>
           </div>
+
+          {showNotifications ? (
+            <div className="notification-panel" aria-live="polite">
+              <strong>Powiadomienia demo</strong>
+              <span>3 oceny wymagają przeglądu lidera.</span>
+              <span>Raport tygodniowy jest gotowy do pokazania.</span>
+            </div>
+          ) : null}
 
           {children}
         </main>
